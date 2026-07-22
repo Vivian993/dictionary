@@ -92,15 +92,26 @@
         </div>
 
         <!-- Keyword Search Input -->
-       <!-- 字典查詢嵌入結果 -->
-    <div id="dict-popup" class="dictionary-popup hidden no-print">
-      <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:4px; color:#3730a3;">
-        <span>🔍 教育部字詞釋義：</span>
-        <button onclick="document.getElementById('dict-popup').classList.add('hidden')" style="color:#999; font-size:10px; border:none; background:none; cursor:pointer;">[關閉]</button>
+       <!-- 即時線上字典查詢區 -->
+    <div class="dict-search-box no-print">
+      <div class="dict-search-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>線上國語字典（查詢詳盡解釋）</span>
       </div>
-      <div id="dict-content" style="max-height: 120px; overflow-y:auto; line-height:1.5;"></div>
+      <div class="dict-input-wrap">
+        <input type="text" id="dict-query-input" placeholder="輸入想查詢的單字，例如「瘧」" class="dict-input">
+        <button onclick="searchDict()" class="btn" style="background-color: var(--color-accent); color:#fff; border-color:var(--color-accent);">線上查字</button>
+      </div>
     </div>
 
+    <!-- 字典查詢嵌入結果 -->
+    <div id="dict-result-popup" class="dictionary-popup hidden no-print">
+      <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:4px; color:#3730a3;">
+        <span>🔍 教育部字詞釋義結果：</span>
+        <button onclick="closeDictPopup()" style="color:#999; font-size:10px; background:none; border:none; cursor:pointer;">[關閉]</button>
+      </div>
+      <div id="dict-result-content" style="max-height: 120px; overflow-y:auto; line-height:1.5;"></div>
+    </div>
 
         <!-- TTS Voice Rate Controller -->
         <div class="md:col-span-2 flex items-center justify-end gap-2 text-xs text-slate-500">
