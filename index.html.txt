@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🌸 全能國語線上字典與聽寫學習系統</title>
+  
+  <!-- 📌 iPhone 桌面 App 圖示：它會去抓您上傳到 GitHub 的 custom-icon.png 照片 -->
+  <link rel="apple-touch-icon" href="custom-icon.png">
+  <link rel="icon" type="image/png" href="custom-icon.png">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap');
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans TC', system-ui, sans-serif; }
+    
+    body { background-color: #fff5f7; color: #4a3e3d; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 2rem; }
+    
+    /* 🌸 櫻花粉頂欄 */
+    header { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); color: #831843; padding: 1.25rem 1rem; border-bottom: 2px dashed #f472b6; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; }
+    .badge { background-color: #f472b6; color: white; font-weight: 900; padding: 0.4rem 0.85rem; border-radius: 1rem; font-size: 1.1rem; }
+    .title-area h1 { font-size: 1.3rem; font-weight: 800; color: #831843; }
+    
+    .btn-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .btn { padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 1rem; border: none; cursor: pointer; transition: all 0.15s ease; }
+    .btn-pink { background-color: #f472b6; color: white; }
+    .btn-rose { background-color: #fb7185; color: white; }
+    .btn-soft { background-color: #ffffff; color: #9d174d; border: 1.5px solid #fbcfe8; }
+
+    /* 🌸 可愛導覽頁籤 */
+    nav { background-color: white; border-bottom: 2px solid #fbcfe8; position: sticky; top: 0; z-index: 30; }
+    .nav-container { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; padding: 0 0.5rem; }
+    .nav-btn { padding: 0.85rem 1rem; font-size: 0.88rem; font-weight: 800; background: none; border: none; border-bottom: 4px solid transparent; color: #9d174d; cursor: pointer; white-space: nowrap; }
+    .nav-btn.active { color: #db2777; border-bottom-color: #f472b6; }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 1.25rem 0.85rem; flex-grow: 1; width: 100%; }
+    
+    /* 🌸 篩選與搜尋列 */
+    .filter-card { background-color: white; padding: 0.85rem 1rem; border-radius: 1.25rem; border: 2px solid #fbcfe8; margin-bottom: 1.25rem; }
+    .select-box, .input-box { width: 100%; background-color: #fff5f7; border: 1.5px solid #fbcfe8; color: #831843; border-radius: 0.85rem; padding: 0.55rem 0.85rem; font-size: 0.85rem; }
+
+    /* 🌸 生字卡片網格 */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1rem; }
+    .char-card { background-color: white; border-radius: 1.5rem; border: 2px solid #fbcfe8; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(251, 207, 232, 0.2); }
+    .card-body { padding: 1.15rem; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .lesson-badge { font-size: 0.75rem; font-weight: 800; color: #9d174d; background-color: #fce7f3; padding: 0.25rem 0.65rem; border-radius: 0.75rem; }
+    .audio-btn { width: 2.3rem; height: 2.3rem; border-radius: 50%; background-color: #fce7f3; color: #db2777; border: none; cursor: pointer; }
+
+    .meta-tag { display: inline-block; background-color: #fff1f2; color: #be123c; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 0.5rem; margin-right: 0.3rem; margin-bottom:0.3rem;}
+    .term-item { padding: 0.6rem 0.75rem; border-radius: 0.85rem; background-color: #fff5f7; border: 1px solid #fbcfe8; margin-top: 0.45rem; }
+    .card-footer { background-color: #fff1f2; padding: 0.65rem 1.15rem; border-top: 1px solid #ffe4e6; display: flex; justify-content: flex-end; }
+
+    /* 🌸 聽寫測驗特別區 */
+    .quiz-card { background-color: white; border-radius: 1.25rem; border: 2px solid #fbcfe8; padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
+    .quiz-mask { background-color: #fbcfe8; color: transparent; border-radius: 0.5rem; padding: 0.1rem 0.5rem; cursor: pointer; }
+    .quiz-mask.revealed { background-color: transparent; color: #831843; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <div class="badge">🌸</div>
+        <div class="title-area">
+          <h1>全能國語線上字典與學習系統</h1>
+          <p>詳細生字、成語圈詞、例句與真人朗讀</p>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button onclick="window.print()" class="btn btn-soft">🖨️ 列印學習單</button>
+        <button onclick="exportData()" class="btn btn-soft">📤 備份</button>
+        <button onclick="triggerImport()" class="btn btn-soft">📥 匯入</button>
+        <button onclick="resetToDefaultData()" class="btn btn-rose">🔄 重置預設</button>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="handleFileImport(event)">
+      </div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="nav-container">
+      <button onclick="switchTab('dict')" id="tab-dict" class="nav-btn active">📖 詳細生字字典</button>
+      <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-btn">✍️ 聽寫測驗模式</button>
+      <button onclick="switchTab('manage')" id="tab-manage" class="nav-btn">➕ 手動查字典新增</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- 搜尋與篩選列 -->
+    <div id="searchSection" class="filter-card">
+      <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
+        <div style="flex: 1; min-width: 160px;">
+          <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">選擇課次：</label>
+          <select id="lessonSelect" onchange="renderApp()" class="select-box" style="margin-top: 0.2rem;"></select>
+        </div>
+        <div style="flex: 2; min-width: 180px;">
+          <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">搜尋生字/注音/圈詞：</label>
+          <input type="text" id="searchInput" oninput="renderApp()" placeholder="輸入關鍵字..." class="input-box" style="margin-top: 0.2rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. 字典視圖 -->
+    <section id="view-dict">
+      <div id="dictContentList" class="card-grid"></div>
+    </section>
+
+    <!-- 2. 聽寫測驗視圖 -->
+    <section id="view-quiz" class="hidden">
+      <div style="background-color: white; padding: 1.25rem; border-radius: 1.5rem; border: 2px solid #fbcfe8;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 800; color: #831843;">✍️ 圈詞聽寫測驗與自我練習</h2>
+            <p style="font-size: 0.75rem; color: #9d174d; margin-top: 0.1rem;">點擊「🔊 播放題目」聽寫，再點擊粉紅遮罩顯示答案！</p>
+          </div>
+          <button onclick="toggleAllQuizMasks()" class="btn btn-pink">👁️ 一鍵顯示/隱藏全部答案</button>
+        </div>
+        <div id="quizListContainer" style="display: flex; flex-direction: column;"></div>
+      </div>
+    </section>
+
+    <!-- 3. 單筆新增視圖 (整合一鍵查字典功能) -->
+    <section id="view-manage" class="hidden">
+      <div style="background-color: white; padding: 1.25rem; border-radius: 1.5rem; border: 2px solid #fbcfe8; max-width: 650px; margin: 0 auto;">
+        <h2 style="font-size: 1.1rem; font-weight: 800; color: #831843; margin-bottom: 1rem;">📝 一鍵查字典並存入字庫</h2>
+        <form id="editForm" onsubmit="handleSaveForm(event)">
+          <input type="hidden" id="editCharId">
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 0.85rem; align-items: end;">
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">生字/詞語 * (先打字)</label>
+              <div style="display:flex; gap:0.3rem; margin-top:0.2rem;">
+                <input type="text" id="editChar" placeholder="例如: 墨" class="input-box" required style="flex:1; border: 2px solid #f472b6;">
+                <button type="button" onclick="lookupMoeDict()" class="btn btn-pink" style="padding: 0.55rem 0.85rem; font-size:0.8rem; white-space:nowrap;">🔍 查字典</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">歸屬課次 *</label>
+              <select id="editLesson" class="select-box" style="margin-top:0.2rem;" required></select>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">注音 *</label>
+              <input type="text" id="editZhuyin" placeholder="自動填寫" class="input-box" style="margin-top:0.2rem;" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 0.85rem;">
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">部首 *</label>
+              <input type="text" id="editRadical" placeholder="自動填寫" class="input-box" style="margin-top:0.2rem;" required>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">總筆劃</label>
+              <input type="text" id="editStrokes" placeholder="自動填寫" class="input-box" style="margin-top:0.2rem;">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 0.85rem;">
+            <label style="font-size: 0.72rem; font-weight: 800; color: #9d174d;">字義解釋</label>
+            <input type="text" id="editCharMeaning" placeholder="自動填寫" class="input-box" style="margin-top:0.2rem;">
+          </div>
+
+          <div style="background-color: #fff5f7; padding: 0.85rem; border-radius: 1rem; margin-bottom: 0.75rem; border: 1.5px solid #fbcfe8;">
+            <h4 style="font-size: 0.8rem; font-weight: 800; color: #831843; margin-bottom: 0.4rem;">相關圈詞 1</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:0.35rem;">
+              <input type="text" id="editTerm1" placeholder="圈詞" class="input-box" required>
+              <input type="text" id="editTerm1Zhuyin" placeholder="注音" class="input-box">
+            </div>
+            <input type="text" id="editTerm1Def" placeholder="圈詞解釋" class="input-box" style="margin-bottom:0.35rem;">
+            <input type="text" id="editTerm1Sentence" placeholder="造句範例" class="input-box">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-pink" style="padding: 0.6rem 1.4rem; font-size:0.85rem; width:100%;">💾 儲存進我的字典</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const DEFAULT_LESSONS = [
+      { id: 1, title: "第1課 智救墨馬" }, { id: 2, title: "第2課 掉進井裏的狐狸" },
+      { id: 3, title: "第3課 迎風奔跑" }, { id: 4, title: "第4課 點石成金" },
+      { id: 5, title: "第5課 做人要誠實" }, { id: 6, title: "第6課 做自己的主人" },
+      { id: 7, title: "第7課 地理大發現" }, { id: 8, title: "第8課 探索海洋" },
+      { id: 9, title: "第9課 台灣的氣候" }, { id: 10, title: "第10課 觀察與實踐" },
+      { id: 11, title: "第11課 擁抱夢想" }, { id: 12, title: "第12課永不放棄" }
+    ];
+
+    const DEFAULT_DATA = [
+      { id: "char_1_1", lessonId: 1, char: "墨", zhuyin: "ㄇㄛˋ", radical: "土部", strokes: "15畫", charMeaning: "深黑色的。也指寫字、畫圖用的黑色顏料。", terms: [ { term: "墨汁", zhuyin: "ㄇㄛˋ ㄓ", def: "寫字或國畫所用的黑色液體。", sentence: "寫書法時，要小心不要把墨汁沾到衣服上。" } ] },
+      { id: "char_1_2", lessonId: 1, char: "智", zhuyin: "ㄓˋ", radical: "日部", strokes: "12畫", charMeaning: "聰明睿智。", terms: [ { term: "智謀", zhuyin: "ㄓˋ ㄇㄡˊ", def: "聰明睿智的計謀與策略。", sentence: "大臣運用智謀，化解了一場國家危機。" } ] }
+    ];
+
+    let appData = [];
+    let currentTab = 'dict';
+    let allRevealed = false;
+
+    window.onload = function() {
+      loadData();
+      populateLessonDropdowns();
+      renderApp();
+    };
+
+    function loadData() {
+      const stored = localStorage.getItem('kanghan_5a_pink_data_v3');
+      if (stored) {
+        try { appData = JSON.parse(stored); } catch(e) { appData = DEFAULT_DATA; }
+      } else {
+        appData = DEFAULT_DATA;
+        saveData();
+      }
+    }
+
+    function saveData() { localStorage.setItem('kanghan_5a_pink_data_v3', JSON.stringify(appData)); }
+
+    function resetToDefaultData() {
+      if (confirm("確定要將所有資料恢復為預設課文嗎？")) {
+        appData = DEFAULT_DATA;
+        saveData();
+        renderApp();
+      }
+    }
+
+    function populateLessonDropdowns() {
+      const select = document.getElementById('lessonSelect');
+      const editSelect = document.getElementById('editLesson');
+      select.innerHTML = '<option value="all">📚 全部課次 (1-12課)</option>';
+      editSelect.innerHTML = '';
+      DEFAULT_LESSONS.forEach(l => {
+        select.innerHTML += `<option value="${l.id}">${l.title}</option>`;
+        editSelect.innerHTML += `<option value="${l.id}">${l.title}</option>`;
+      });
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['dict', 'quiz', 'manage'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+      });
+      renderApp();
+    }
+
+    /* 🌐 完全免費的「現查現有」萌典資料庫連線 */
+    async function lookupMoeDict() {
+      const charInput = document.getElementById('editChar').value.trim();
+      if (!charInput) return alert("請先在第一格輸入您想查的字！");
+      
+      const btn = document.querySelector("#editForm button[onclick='lookupMoeDict()']");
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `查尋中...`;
+      btn.style.pointerEvents = 'none';
+
+      try {
+        // 使用教育部萌典公開 API (完全免費，不需金鑰)
+        const response = await fetch(`https://www.moedict.tw/a/${encodeURIComponent(charInput)}.json`);
+        if (!response.ok) throw new Error('找不到');
+        
+        const data = await response.json();
+        const hetero = data.heteronyms[0]; // 抓取第一個讀音資料
+        
+        if (hetero) {
+          // 自動填入注音 (移除特殊符號)
+          if (hetero.bopomofo) {
+            document.getElementById('editZhuyin').value = hetero.bopomofo.replace(/<[^>]*>?/gm, '').trim();
+          }
+          // 自動填入部首與筆劃
+          if (data.radical) document.getElementById('editRadical').value = data.radical + "部";
+          if (data.stroke_count) document.getElementById('editStrokes').value = data.stroke_count + "畫";
+          
+          // 自動填入字義解釋 (抓取第一個解釋並移除標籤)
+          if (hetero.definitions && hetero.definitions.length > 0) {
+            let defText = hetero.definitions[0].def;
+            defText = defText.replace(/<[^>]*>?/gm, '').replace(/~/g, '').replace(/`|'/g, '');
+            document.getElementById('editCharMeaning').value = defText;
+          }
+
+          // 預設將該字複製到圈詞1，方便填寫
+          document.getElementById('editTerm1').value = charInput;
+          document.getElementById('editTerm1Zhuyin').value = document.getElementById('editZhuyin').value;
+          document.getElementById('editTerm1Def').value = document.getElementById('editCharMeaning').value;
+
+          alert("✅ 成功找到字詞資料，已自動填入各欄位！\n您可以稍微檢查修改後，按下「儲存進我的字典」。");
+        }
+      } catch (error) {
+        alert(`無法自動取得「${charInput}」的資料。這可能是一個罕見字或詞語。\n即將為您直接開啟教育部辭典網頁讓您查詢！`);
+        window.open(`https://dict.revised.moe.edu.tw/search.jsp?md=1&word=${encodeURIComponent(charInput)}`, '_blank');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.style.pointerEvents = 'auto';
+      }
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-TW';
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    }
+
+    function renderApp() {
+      const lessonVal = document.getElementById('lessonSelect').value;
+      const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      const filtered = appData.filter(item => {
+        const matchLesson = (lessonVal === 'all') || (item.lessonId.toString() === lessonVal);
+        const matchChar = item.char.includes(searchVal) || item.zhuyin.includes(searchVal) || item.terms.some(t => t.term.includes(searchVal));
+        return matchLesson && (!searchVal || matchChar);
+      });
+
+      if (currentTab === 'dict') renderDict(filtered);
+      else if (currentTab === 'quiz') renderQuiz(filtered);
+    }
+
+    function renderDict(items) {
+      const container = document.getElementById('dictContentList');
+      if (items.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#9d174d;">🌸 找不到生字，請點上方「➕ 手動查字典新增」來加入吧！</div>';
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div class="char-card">
+          <div class="card-body">
+            <div class="card-top">
+              <span class="lesson-badge">第 ${item.lessonId} 課</span>
+              <button onclick="speakText('${item.char}')" class="audio-btn">🔊</button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.75rem;">
+              <div style="width:4.2rem; height:4.2rem; background-color:#fff1f2; border:2.5px solid #fda4af; border-radius:1.25rem; display:flex; align-items:center; justify-content:center; font-size:2.2rem; font-weight:900; color:#9f1239;">${item.char.substring(0,2)}</div>
+              <div>
+                <div style="font-size:1.2rem; font-weight:800; color:#831843;">${item.char} <span style="color:#db2777; font-size:0.9rem;">［${item.zhuyin}］</span></div>
+                <div style="margin-top:0.2rem;">
+                  <span class="meta-tag">部首：${item.radical}</span>
+                  ${item.strokes ? `<span class="meta-tag">筆劃：${item.strokes}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            ${item.charMeaning ? `<div style="font-size:0.75rem; color:#831843; margin-bottom:0.5rem;"><strong>字義：</strong>${item.charMeaning}</div>` : ''}
+
+            ${item.terms.map(t => `
+              <div class="term-item">
+                <div style="font-weight: 800; font-size: 0.88rem; color: #831843; display: flex; justify-content: space-between;">
+                  <span>${t.term} <small style="color:#db2777; font-weight:600;">(${t.zhuyin})</small></span>
+                  <button onclick="speakText('${t.term}')" style="border:none; background:none; cursor:pointer;">🔊</button>
+                </div>
+                ${t.def ? `<div style="font-size: 0.78rem; color: #9d174d; margin-top: 0.25rem;">解釋：${t.def}</div>` : ''}
+                ${t.sentence ? `<div style="font-size: 0.75rem; color: #475569; background-color: #f8fafc; padding: 0.45rem 0.65rem; border-radius: 0.5rem; margin-top: 0.35rem; border-left: 3px solid #f472b6;">造句：${t.sentence}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="card-footer">
+            <button onclick="editCharItem('${item.id}')" style="color:#9d174d; border:none; background:none; font-weight:700; cursor:pointer;">✏️ 編輯</button>
+            <button onclick="deleteCharItem('${item.id}')" style="color:#fb7185; border:none; background:none; font-weight:700; cursor:pointer; margin-left:0.5rem;">🗑️ 刪除</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderQuiz(items) {
+      const container = document.getElementById('quizListContainer');
+      let allTerms = [];
+      items.forEach(item => item.terms.forEach(t => allTerms.push({ ...t, lessonId: item.lessonId })));
+      
+      if(allTerms.length === 0){
+        container.innerHTML = '<div style="text-align:center; padding:2rem; color:#9d174d;">🌸 本課尚無測驗內容！</div>';
+        return;
+      }
+
+      container.innerHTML = allTerms.map((t, idx) => `
+        <div class="quiz-card">
+          <div style="flex:1;">
+            <div style="font-size:0.75rem; color:#9d174d;">第 ${t.lessonId} 課 圈詞 ${idx + 1}</div>
+            <div style="font-size:1.05rem; font-weight:800;">
+              <span class="quiz-mask ${allRevealed ? 'revealed' : ''}" onclick="this.classList.toggle('revealed')">${t.term}</span>
+              <span style="font-size:0.85rem; color:#db2777;">(${t.zhuyin})</span>
+            </div>
+          </div>
+          <button onclick="speakText('${t.term}')" class="btn btn-pink">🔊 發音</button>
+        </div>
+      `).join('');
+    }
+
+    function toggleAllQuizMasks() {
+      allRevealed = !allRevealed;
+      document.querySelectorAll('.quiz-mask').forEach(m => m.classList.toggle('revealed', allRevealed));
+    }
+
+    function exportData() {
+      const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const a = document.createElement('a'); a.href = d; a.download = "國語字典備份.json"; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    function triggerImport() { document.getElementById('importFile').click(); }
+    
+    function handleFileImport(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = function(x) { try { appData = JSON.parse(x.target.result); saveData(); renderApp(); alert("匯入成功！"); } catch(y) {} }; r.readAsText(f);
+    }
+
+    function handleSaveForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('editCharId').value;
+      const data = {
+        id: id || ('char_' + Date.now()),
+        lessonId: parseInt(document.getElementById('editLesson').value, 10),
+        char: document.getElementById('editChar').value.trim(),
+        zhuyin: document.getElementById('editZhuyin').value.trim(),
+        radical: document.getElementById('editRadical').value.trim(),
+        strokes: document.getElementById('editStrokes').value.trim(),
+        charMeaning: document.getElementById('editCharMeaning').value.trim(),
+        terms: [{ term: document.getElementById('editTerm1').value.trim(), zhuyin: document.getElementById('editTerm1Zhuyin').value.trim(), def: document.getElementById('editTerm1Def').value.trim(), sentence: document.getElementById('editTerm1Sentence').value.trim() }]
+      };
+      if (id) { const i = appData.findIndex(x => x.id === id); if (i !== -1) appData[i] = data; }
+      else appData.push(data);
+      saveData();
+      document.getElementById('editForm').reset(); switchTab('dict');
+    }
+
+    function editCharItem(id) {
+      const item = appData.find(x => x.id === id); if (!item) return;
+      switchTab('manage');
+      document.getElementById('editCharId').value = item.id;
+      document.getElementById('editLesson').value = item.lessonId;
+      document.getElementById('editChar').value = item.char;
+      document.getElementById('editZhuyin').value = item.zhuyin;
+      document.getElementById('editRadical').value = item.radical;
+      document.getElementById('editStrokes').value = item.strokes;
+      document.getElementById('editCharMeaning').value = item.charMeaning;
+      if (item.terms[0]) {
+        document.getElementById('editTerm1').value = item.terms[0].term;
+        document.getElementById('editTerm1Zhuyin').value = item.terms[0].zhuyin;
+        document.getElementById('editTerm1Def').value = item.terms[0].def;
+        document.getElementById('editTerm1Sentence').value = item.terms[0].sentence;
+      }
+    }
+
+    function deleteCharItem(id) { if (confirm("確定刪除此字詞？")) { appData = appData.filter(x => x.id !== id); saveData(); renderApp(); } }
+  </script>
+</body>
+</html>
+
+
